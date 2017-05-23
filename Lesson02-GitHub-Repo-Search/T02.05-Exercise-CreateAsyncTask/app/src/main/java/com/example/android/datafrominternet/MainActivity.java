@@ -15,6 +15,7 @@
  */
 package com.example.android.datafrominternet;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -56,19 +57,31 @@ public class MainActivity extends AppCompatActivity {
         String githubQuery = mSearchBoxEditText.getText().toString();
         URL githubSearchUrl = NetworkUtils.buildUrl(githubQuery);
         mUrlDisplayTextView.setText(githubSearchUrl.toString());
-        String githubSearchResults = null;
-        try {
-            githubSearchResults = NetworkUtils.getResponseFromHttpUrl(githubSearchUrl);
-            mSearchResultsTextView.setText(githubSearchResults);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // TODO (4) Create a new GithubQueryTask and call its execute method, passing in the url to query
+        GithubQueryTask query = new GithubQueryTask(); // Make new GithubQueryTask and execute with url
+        query.execute(githubSearchUrl);
+        // DONE (4) Create a new GithubQueryTask and call its execute method, passing in the url to query
     }
+    private class GithubQueryTask extends AsyncTask<URL, Void, String>{
+        @Override
+        protected String doInBackground(URL... urls){
+            try{
+                String searchResults = NetworkUtils.getResponseFromHttpUrl(urls[0]); // Search given URL
+                return searchResults;
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+            return null;
+        }
 
-    // TODO (1) Create a class called GithubQueryTask that extends AsyncTask<URL, Void, String>
-    // TODO (2) Override the doInBackground method to perform the query. Return the results. (Hint: You've already written the code to perform the query)
-    // TODO (3) Override onPostExecute to display the results in the TextView
+        @Override
+        protected void onPostExecute(String s){
+            mSearchResultsTextView.setText(s); // Could check if String is empty/null
+        }
+    }
+    // DONE (1) Create a class called GithubQueryTask that extends AsyncTask<URL, Void, String>
+    // DONE (2) Override the doInBackground method to perform the query. Return the results. (Hint: You've already written the code to perform the query)
+    // DONE (3) Override onPostExecute to display the results in the TextView
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
